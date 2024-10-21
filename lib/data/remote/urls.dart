@@ -6,5 +6,5 @@ class Urls{
   static final String SEARCH_Wall_URL = "${BASE_URL}search";
 
 
-  static final String TRENDING_WALL_URL = "${BASE_URL}curated ";
+  static final String TRENDING_WALL_URL = "${BASE_URL}curated";
 }

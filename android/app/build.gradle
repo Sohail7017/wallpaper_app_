@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wallpaper_app"
+    namespace = "com.example.namespace"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

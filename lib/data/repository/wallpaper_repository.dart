@@ -9,9 +9,9 @@ class WallpaperRepository{
 
   /// Search Wallpapers
 
-  Future<dynamic> getSearchWallpapers(String mQuery) async{
+  Future<dynamic> getSearchWallpapers(String mQuery,{String mColor ="",int mPage = 1}) async{
     try {
-      return await apiHelper.getWallpaperApi(url: "${Urls.SEARCH_Wall_URL}?query= $mQuery");
+      return await apiHelper.getWallpaperApi(url: "${Urls.SEARCH_Wall_URL}?query= $mQuery&color=$mColor&page=$mPage");
 
     } catch(e){
       throw(e);

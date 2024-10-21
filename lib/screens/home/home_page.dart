@@ -6,6 +6,7 @@ import 'package:wallpaper_app/data/remote/api_helper.dart';
 import 'package:wallpaper_app/data/repository/wallpaper_repository.dart';
 import 'package:wallpaper_app/screens/search/cubit/search_cubit.dart';
 import 'package:wallpaper_app/screens/search/search_wallpaper_page.dart';
+import 'package:wallpaper_app/screens/wallpaper_detail_page.dart';
 
 import 'package:wallpaper_app/widgets/wallpaper_widget.dart';
 
@@ -39,52 +40,6 @@ class _HomePageState extends State<HomePage> {
 
           /// Search wallpaper Text Feild
 
-         /* Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15,),
-            child: TextField(
-              controller: SearchController(),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColor.secondaryColor,
-                suffixIcon: InkWell(
-                    onTap: (){
-                      if(searchController.text.isNotEmpty){
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                                create: (context) => SearchCubit(
-                                    wallpaperRepository: WallpaperRepository(
-                                        apiHelper: ApiHelper())),
-                              child: SearchWallpaperPage(query: searchController.text),),
-                        ));
-                      }
-                    },
-                    child: Icon(Icons.search,color: Colors.grey.shade400,)),
-                hintText: 'Find Wallpapers....',
-                hintStyle: mTextStyle14(mColor: Colors.grey.shade400,mFontWeight: FontWeight.bold),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Colors.transparent
-                  ),
-
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                      color: Colors.transparent
-                  ),
-
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                      color: Colors.transparent
-                  ),
-
-                ),)
-
-            ),
-          ),*/
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15,),
@@ -165,7 +120,11 @@ class _HomePageState extends State<HomePage> {
                           var eachPhoto = state.listPhotos[index];
                           return Padding(
                             padding:  EdgeInsets.only(left: 16, right: index==state.listPhotos.length-1 ? 16 : 0),
-                            child: WallpaperWidget(imgUrl: eachPhoto.src!.portrait!),
+                            child: InkWell(
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => WallpaperDetailPage(imageModel: eachPhoto.src!)));
+                                },
+                                child: WallpaperWidget(imgUrl: eachPhoto.src!.portrait!)),
                           );
                         });
                   }
@@ -194,7 +153,20 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (_,index){
                   return Padding(
                     padding:  EdgeInsets.only(left: 16, right: index==AppConstant.mColor.length-1 ? 16 : 0),
-                    child: getColorTone(AppConstant.mColor[index])
+                    child: InkWell(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => BlocProvider(
+                                create: (context) => SearchCubit(
+                                    wallpaperRepository: WallpaperRepository(
+                                        apiHelper: ApiHelper())),
+                          child: SearchWallpaperPage(
+                            query: searchController.text.isNotEmpty ? searchController.text : "Nature",
+                          color: AppConstant.mColor[index]['code'],
+                          ),
+                          )));
+                        },
+                        child: getColorTone(AppConstant.mColor[index]['color']))
                   );
                 }),
           ),
@@ -226,9 +198,20 @@ class _HomePageState extends State<HomePage> {
               ),
                 itemCount: AppConstant.mCategories.length,
                 itemBuilder: (_,index){
-                  return getCategoryWall(
-                      AppConstant.mCategories[index]['image'],
-                      AppConstant.mCategories[index]['title']);
+                  return InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                              create: (context) => SearchCubit(
+                                  wallpaperRepository: WallpaperRepository(
+                                      apiHelper: ApiHelper())),
+                          child: SearchWallpaperPage(query: AppConstant.mCategories[index]['title']),
+                          )));
+                    },
+                    child: getCategoryWall(
+                        AppConstant.mCategories[index]['image'],
+                        AppConstant.mCategories[index]['title']),
+                  );
                 }),
           ),
 
