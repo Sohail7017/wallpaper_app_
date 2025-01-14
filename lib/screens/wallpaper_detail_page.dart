@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:gallery_saver/gallery_saver.dart';
 import 'package:wallpaper/wallpaper.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:wallpaper_app/api_utility/util_helper.dart';
 import 'package:wallpaper_app/models/trending_wallpaper_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class WallpaperDetailPage extends StatelessWidget {
   Src imageModel;
@@ -32,12 +36,16 @@ class WallpaperDetailPage extends StatelessWidget {
                       width: 35,
                     ),
                 
-                    actionButton(onTap: (){saveWallpaper(context);}, title: "Save", icon: Icons.save_alt_outlined),
+                    actionButton(onTap: (){
+                      saveWallpaper(context);
+                      }, title: "Save", icon: Icons.save_alt_outlined),
                 
                     SizedBox(
                       width: 35,
                     ),
-                    actionButton(onTap: (){applyWallpaper(context);}, title: "Apply", icon: Icons.brush_sharp,bgColor: AppColor.blueColor),
+                    actionButton(onTap: (){
+                      applyWallpaper(context);
+                      }, title: "Apply", icon: Icons.brush_sharp,bgColor: AppColor.blueColor),
                   ],
                 ),
               ),
@@ -78,10 +86,46 @@ class WallpaperDetailPage extends StatelessWidget {
   }
 
 
-  void saveWallpaper(BuildContext context){
-    GallerySaver.saveImage(imageModel.portrait!).then((value) =>
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Saved Successfully!!'))));
+  // Save wallpaper function
+  void saveWallpaper(BuildContext context) async {
+    try {
+      // Step 1: Download the image
+      var response = await http.get(Uri.parse(imageModel.portrait!));
+      Uint8List bytes = response.bodyBytes;
+
+      // Step 2: Get the directory to save the image
+      final directory = await getApplicationDocumentsDirectory();
+      String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+      File imgFile = File('${directory.path}/$fileName');
+
+      // Step 3: Write the image to file
+      await imgFile.writeAsBytes(bytes);
+
+      // Step 4: Save image to gallery
+      final result = await ImageGallerySaver.saveFile(imgFile.path);
+
+      if (result['isSuccess']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Wallpaper saved to gallery")),
+        );
+        openGallery();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error saving wallpaper: $e")),
+      );
+    }
+  }
+
+  void openGallery() async {
+    const galleryUrl =
+        'content://media/internal/images/media'; // URI for the gallery
+
+    // if (await canLaunch(galleryUrl)) {
+    //   await launch(galleryUrl);
+    // } else {
+    //   print("Could not open the gallery");
+    // }
   }
 
 
@@ -107,6 +151,5 @@ class WallpaperDetailPage extends StatelessWidget {
 
     );
   }
-
 
 }
